@@ -9,6 +9,7 @@ import { WalletAccountTransaction } from '@wallet-types';
 import { getNetwork, formatNetworkAmount } from '@wallet-utils/accountUtils';
 import { isPending } from '@wallet-utils/transactionUtils';
 import BigNumber from 'bignumber.js';
+import { TokenTransfer } from 'trezor-connect';
 
 // define these attributes as a constant because we will use the same values in two different styled components
 const ROW_HEIGHT = '36px';
@@ -51,6 +52,17 @@ const ShowFiatButtonWrapper = styled.div`
     margin-bottom: ${GRID_GAP};
 `;
 
+const getAmount = (tx: WalletAccountTransaction, tokenTransfer?: TokenTransfer) => {
+    if (tokenTransfer) {
+        return tokenTransfer.amount;
+    }
+    const network = getNetwork(tx.symbol);
+    // subtract fee from sent transaction amount (looks like only btc-like txs amounts are including fee, ethereum tx.amount does not include a fee)
+    return tx.type === 'sent' && network!.networkType === 'bitcoin'
+        ? new BigNumber(tx.amount).minus(tx.fee).toString()
+        : tx.amount;
+};
+
 interface Props {
     tx: WalletAccountTransaction;
     txDetails: any;
@@ -58,7 +70,7 @@ interface Props {
 }
 const AmountDetails = ({ tx, txDetails, isTestnet }: Props) => {
     const tokenTransfer = tx.tokens.length > 0 ? tx.tokens[0] : undefined;
-    const amount = tokenTransfer ? tokenTransfer.amount : tx.amount;
+    const amount = getAmount(tx, tokenTransfer);
     const assetSymbol = tokenTransfer ? tokenTransfer.symbol : tx.symbol;
 
     const [showFiat, setShowFiat] = useState(false);
