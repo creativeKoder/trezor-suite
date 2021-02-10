@@ -116,6 +116,8 @@ const TransactionList = ({ transactions, isLoading, account, ...props }: Props) 
     const isRipple = account.networkType === 'ripple';
     const showPagination = isRipple ? shouldShowRipplePagination : total > 1;
 
+    console.log(showPagination, isRipple, size, total);
+
     return (
         <StyledSection
             ref={ref}
@@ -173,7 +175,7 @@ const TransactionList = ({ transactions, isLoading, account, ...props }: Props) 
             {showPagination && (
                 <PaginationWrapper>
                     <Pagination
-                        hasPages={isRipple}
+                        hasPages={!isRipple}
                         currentPage={currentPage}
                         totalPages={total}
                         isOnLastPage={isOnLastPage}
