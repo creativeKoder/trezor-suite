@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 ### Fixed
+- Incorrect fiat rates for tokens sharing the same symbol
 
 ## 21.2.1 [10th February 2021]
 

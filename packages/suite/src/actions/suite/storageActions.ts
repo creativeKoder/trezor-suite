@@ -213,14 +213,20 @@ export const saveWalletSettings = () => async (_dispatch: Dispatch, getState: Ge
     );
 };
 
-export const removeFiatRate = (symbol: string) => (_dispatch: Dispatch, _getState: GetState) => {
-    // TODO: just to be safe store and delete by compound index [symbol, mainNetworkSymbol]
-    // check if it's fine to have mainNetworkSymbol undefined
-    return db.removeItemByPK('fiatRates', symbol);
+export const removeFiatRate = (symbol: string, tokenAddress?: string) => (
+    _dispatch: Dispatch,
+    _getState: GetState,
+) => {
+    const key = tokenAddress ? `${symbol}-${tokenAddress}` : symbol;
+    return db.removeItemByPK('fiatRates', key);
 };
 
 export const saveFiatRates = () => (_dispatch: Dispatch, getState: GetState) => {
-    return db.addItems('fiatRates', getState().wallet.fiat.coins, true);
+    const promises = getState().wallet.fiat.coins.map(c => {
+        const key = c.tokenAddress ? `${c.symbol}-${c.tokenAddress}` : c.symbol;
+        return db.addItem('fiatRates', c, key, true);
+    });
+    return Promise.all(promises);
 };
 
 export const saveSuiteSettings = () => (_dispatch: Dispatch, getState: GetState) => {
